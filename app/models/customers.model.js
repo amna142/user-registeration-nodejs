@@ -23,4 +23,23 @@ Customer.create = (newCustomer, result) => {
     })
 }
 
+Customer.find = (customer, result) =>{
+	console.log('customerIdAmna', JSON.stringify(customer.email))
+	sql.query(`SELECT * FROM customers WHERE email=${JSON.stringify(customer.email)}`, (err, res) => {
+		if(err){
+			 console.log("error:", err)
+            result(err, null)
+            return
+		}
+		 if(res.length){
+			console.log('customer found', res[0])
+			result(null, res[0])
+			return
+		}
+			result({
+				kind: 'Not Found'
+			}, null)
+	})
+}
+
 module.exports = Customer
