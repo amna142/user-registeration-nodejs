@@ -1,6 +1,11 @@
 module.exports = {
-    HOST: 'localhost',
-    USER: 'root',
-    PASSWORD: 'SuperHero@2019',
-    DB: 'sys'
+    SERVER: 'DSC-LAPTOP-011',
+    USER: 'amna',
+    PASSWORD: 'SuperHero@2020',
+	DB: 'payroll',
+	DRIVER: "msnodesqlv8",
+	PORT: 1433,
+	OPTION: {
+    trustedConnection: true
+  }
 }
