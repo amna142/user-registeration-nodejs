@@ -6,6 +6,7 @@ module.exports = {
 	DRIVER: "msnodesqlv8",
 	PORT: 1433,
 	OPTION: {
-    trustedConnection: true
+	trustedConnection: true,
+	enableArithAbort: true
   }
 }
