@@ -1,95 +1,95 @@
 var connection = require('../models/db')
 var bcrypt = require('bcrypt')
 var Customer = require('../models/customers.model')
-exports.addCustomerIntoDatabase = (req, res, next) => {
-	req.assert('name', 'Name is required').notEmpty()
-	req.assert('email', 'An email is required').isEmail()
-	req.assert('password', 'password is required').notEmpty()
-	var err = req.validationErrors()
-	// no error found
-	if (!err) {
-		var customer = {
-			name: req.sanitize('name').escape().trim(),
-			email: req.sanitize('email').escape().trim()
-		}
-		connection.query('INSERT INTO customers SET ?', customer, (err, result) => {
-			if (err) {
-				console.log('error in insertion', err)
+//update customer post action
+exports.updateCustomer = (req, res) => {
+	console.log('req.params.id', req.params)
+	var customerId = req.params.employee_id
 
-				res.render('customers/add', {
-					title: 'Add New Customer',
-					name: customer.name,
-					email: customer.email
+	// no error found
+	if (customerId) {
+		console.log('req.body', req.body)
+		var customer = {
+			first_name: req.body.first_name,
+			email: req.body.email,
+			id: parseInt(customerId)
+		}
+		console.log('customer', customer)
+		Customer.update(customer, (err, data) => {
+			if (err) {
+				console.log('Not Edited', err);
+				console.log('req', req.body)
+				res.render('customers', {
+					title: 'Edit Customer',
+					first_name: req.body.name,
+					email: req.body.email
 				})
 			} else {
 				res.redirect('/customers')
 			}
 		})
 	} else {
-		var error_message = '';
-		err.forEach(element => {
-			error_message += element.msg + '<br>'
-		});
-		res.render('customers/add', {
-			title: 'Add New Customer',
-			name: req.body.name,
-			email: req.body.email
-		})
+		console.log('errors... ')
 	}
 }
-
-
-//update customer post action
-exports.updateCustomer = (req, res) => {
-	req.assert('name', 'Name is required').notEmpty()
-	req.assert('email', 'An email is required').isEmail()
-	req.assert('password', 'password is required').notEmpty()
-	var err = req.validationErrors()
-	var customerId = req.params.id
-	// no error found
-	if (!err) {
-		var hashedPassword = bcrypt.hashSync(req.body.password, 8);
-		var customer = {
-			name: req.sanitize('name').escape().trim(),
-			email: req.sanitize('email').escape().trim(),
-			password: hashedPassword
-		}
-		var customerObj = {
-			customer: customer,
-			customerId: customerId
-		}
-		Customer.update(customerObj, (err, data) => {
-			if (err) {
-				console.log('Not Edited', err);
-				res.render('customers/update', {
-					title: 'Edit Customer',
-					name: req.body.name,
-					email: req.body.email,
-					password: req.body.password
-				})
-			} else {
-				res.redirect('/')
-			}
-		})
-	} else {
-		console.log('errors... ',err )
-	}
-}
-
 
 //show add user form 
 exports.showAddCustomerForm = (req, res) => {
 	console.log('i am in showAddCustomerForm')
 	res.render('customers/add', {
 		title: 'Add New Customer',
-		name: '',
+		first_name: '',
 		email: ''
 	})
 }
+//post request
+exports.create = (req, res) => {
+	console.log('req.body Amna', req.body);
+	if (!req.body) {
+		res.render('customers/add', {
+			title: 'Add New Customer',
+			firs_name: req.body.first_name,
+			email: req.body.email,
+			password: req.body.password,
+			confirmPassword: req.body.confirmPassword
+		})
+	} else if (req.body) {
+		//find customer with same credentials
+		//create customer
+		if (req.body.password === req.body.confirmPassword) {
+			console.log('i am inside password matching')
+			var hashedPassword = bcrypt.hashSync(req.body.password, 8);
+			const customer = new Customer({
+				first_name: req.body.first_name,
+				email: req.body.email,
+				password: hashedPassword
+			});
+			console.log('customer', customer)
 
+			//save customer into database
+			Customer.create(customer, (err, data) => {
+				if (err) {
+					console.log(err);
+					res.render('customers/add', {
+						title: 'Add New Customer',
+						first_name: customer.first_name,
+						email: customer.email,
+						password: customer.password,
+						confirmPassword: customer.confirmPassword
+					})
+				} else {
+					console.log('i have reached here')
+					res.redirect('/customers')
+				}
+			});
+		}
+	}
+};
 exports.home = (req, res) => {
-	connection.query('SELECT * FROM customers ORDER BY id DESC', (err, rows) => {
+	connection.query('SELECT * FROM Employee ORDER BY employee_id DESC', (err, rows) => {
+		console.log('rows', rows.recordset)
 		if (err) {
+			
 			console.log('i am in error', err)
 			res.render('customers', {
 				page_Title: 'Customers - Node js',
@@ -98,14 +98,15 @@ exports.home = (req, res) => {
 		} else {
 			res.render('customers', {
 				page_Title: 'Customer - Node Js',
-				data: rows
+				data: rows.recordset
 			})
 		}
 	})
 }
 
 exports.deleteCustomer = (req, res, next) => {
-	var customerId = req.params.id
+	var customerId = req.params.employee_id
+	console.log('customerId', typeof (customerId))
 	if (!customerId) {
 		res.redirect('/')
 	} else if (customerId) {
@@ -113,18 +114,17 @@ exports.deleteCustomer = (req, res, next) => {
 		Customer.delete(customerId, (err, data) => {
 			if (err) {
 				console.log('not deleted', err);
-				res.redirect('/')
+				res.redirect('/customers')
 			} else {
-				res.redirect('/')
+				res.redirect('/customers')
 			}
 		});
 	}
 }
 
-
-
 exports.showEditCustomerForm = (req, res, next) => {
-	var customerId = req.params.id;
+	var customerId = req.params.employee_id;
+	console.log('customerId', customerId)
 	if (!customerId) {
 		res.redirect('/')
 	} else if (customerId) {
@@ -134,17 +134,15 @@ exports.showEditCustomerForm = (req, res, next) => {
 			if (data.length < 0) {
 				res.redirect('/')
 			} else {
-				console.log('data', data.id)
+				console.log('data', data.employee_id)
 				res.render('customers/edit', {
 					title: 'Edit Customer',
-					id: data.id,
-					name: data.name,
+					employee_id: data.employee_id,
+					first_name: data.first_name,
 					email: data.email,
 					password: data.password
 				})
 			}
 		})
-
-
 	}
 }

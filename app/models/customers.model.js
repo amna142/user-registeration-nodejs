@@ -4,13 +4,13 @@ const sql = require('./db.js')
 
 const Customer = function (customer) {
 	this.email = customer.email,
-		this.name = customer.name,
+		this.first_name = customer.first_name,
 		this.password = customer.password
 }
 
 Customer.delete = (customerId, result) => {
-	console.log('customerIdAmna', JSON.stringify(customerId))
-	sql.query(`DELETE FROM customers WHERE id=${customerId}`, (err, res) => {
+	console.log('customerIdAmna', customerId)
+	sql.query(`DELETE FROM Employee WHERE employee_id=${customerId}`, (err, res) => {
 		console.log('hello response', res)
 		if (err) {
 			console.log("error:", err)
@@ -28,53 +28,48 @@ Customer.delete = (customerId, result) => {
 	})
 }
 
-
-
-
-
 //now add customer in database 
-
+//  return sql.query("INSERT INTO StudentInfo VALUES('" + req.body.Name + "', " + req.body.Age + ")");
 Customer.create = (newCustomer, result) => {
-	sql.query('INSERT INTO customers ?', newCustomer, (err, res) => {
-		if (err) {
-			console.log("error:", err)
-			result(err, null)
-			return
-		} else {
-			console.log('created customer:', {
-				id: res.insertId,
-				...newCustomer
-			})
-			result(null, {
-				id: res.insertId,
-				...newCustomer
-			})
-		}
-	})
+	console.log('newCustomer', newCustomer)
+	if ((newCustomer.name && newCustomer.email && newCustomer.password) !== null) {
+
+		sql.query("INSERT INTO Employee VALUES('" + newCustomer.first_name + "', '" + newCustomer.email + " ', '" + newCustomer.password + "', 0)", (err, res) => {
+			if (err) {
+				console.log("error:", err)
+				result(err, null)
+				return
+			} else {
+				console.log('response', res)
+				console.log('created customer:', {
+					id: res.inser,
+					...newCustomer
+				})
+				result(null, {
+					id: res.insertId,
+					...newCustomer
+				})
+			}
+		})
+	}
 }
 
-Customer.find = (customer, result) => {
-	var temp = null
-	if (customer.email) {
-		temp = {
-			key: 'email',
-			value: JSON.stringify(customer.email)
-		}
-	} else temp = {
-		key: 'id',
-		value: customer
-	}
-	sql.query(`SELECT * FROM customers WHERE ${temp.key}=${temp.value}`, (err, res) => {
+Customer.find = (customerId, result) => {
+	console.log('customer', customerId)
+	var id = JSON.stringify(customerId).replace(/"/g, "'");
+	console.log('id', id)
+	sql.query(`SELECT * FROM Employee WHERE employee_id=${id}`, (err, res) => {
 		if (err) {
-			console.log("error:", err)
+			console.log("error...", err)
 			result(err, null)
 			return
 		}
-		if (res.length) {
-			console.log('customer found here', res[0])
-			result(null, res[0])
+		if (res.recordset.length) {
+			console.log('customer found', res.recordset[0])
+			result(null, res.recordset[0])
 			return
 		}
+		console.log('response', res.recordset[0])
 		result({
 			kind: 'Not Found'
 		}, null)
@@ -82,11 +77,54 @@ Customer.find = (customer, result) => {
 }
 
 
+
+Customer.findEmployee = (email, result) => {
+	console.log('email', email)
+	email = JSON.stringify(email).replace(/"/g, "'");
+	sql.query(`SELECT * FROM Employee WHERE email=${email}`, (err, res) => {
+		if (err) {
+			console.log("error...", err)
+			result(err, null)
+			return
+		}
+		if (res.recordset.length) {
+			console.log('customer found', res.recordset[0])
+			result(null, res.recordset[0])
+			return
+		}
+		console.log('response', res.recordset[0])
+		result({
+			kind: 'Not Found'
+		}, null)
+	})
+}
+
+Customer.findEmployee = (customerId, result) => {
+	console.log('customer', customerId)
+	var id = JSON.stringify(customerId).replace(/"/g, "'");
+	console.log('id', id)
+	sql.query(`SELECT * FROM Employee WHERE email=${id}`, (err, res) => {
+		if (err) {
+			console.log("error...", err)
+			result(err, null)
+			return
+		}
+		if (res.recordset.length) {
+			console.log('customer found', res.recordset[0])
+			result(null, res.recordset[0])
+			return
+		}
+		console.log('response', res.recordset[0])
+		result({
+			kind: 'Not Found'
+		}, null)
+	})
+}
+
 Customer.update = (customer, result) => {
-	console.log('called!!!!')
-	console.log('customer', parseInt(customer.customerId))
-	var customerObj = customer.customer
-	sql.query(`UPDATE customers SET? WHERE id=${parseInt(customer.customerId)}`, customerObj, (err, res) => {
+	var name = JSON.stringify(customer.first_name).replace(/"/g, "'")
+	var email = JSON.stringify(customer.email).replace(/"/g, "'")
+	sql.query(`UPDATE Employee SET first_name=${name}, email=${email} WHERE employee_id=${customer.id}`, (err, res) => {
 		console.log("error:", err)
 		if (err) {
 			result(err, null)
@@ -94,11 +132,11 @@ Customer.update = (customer, result) => {
 		} else {
 			console.log('updated customer:', {
 				id: res.insertId,
-				...customerObj
+				...customer
 			})
 			result(null, {
 				id: res.insertId,
-				...customerObj
+				...customer
 			})
 		}
 	})
