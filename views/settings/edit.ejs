@@ -1,0 +1,40 @@
+<%- include('../partials/header'); %>
+
+<div class="container" style="padding-top: 3%; padding-left: 15%;">
+
+	<div class="row">
+		<form action="/settings/edit/<%= id %>" method="POST" name="form1">
+			<div class="col s10 m9">
+				<div class="card-panel">
+					Edit Employee Access Settings:
+					<div class="row">
+						<div class="input-field col s12">
+							<input id="domain" type="text" name="domain" required="" value='<%= domain %>'
+								class="validate">
+							<label for="domain">Domain</label>
+						</div>
+					</div>
+					<div class="row">
+						<div class="input-field col s12">
+							<label>
+								<input type="checkbox" class="validate" id="access" name="access"
+									<%= access ? "checked" : "" %> />
+								<span>Access</span>
+							</label>
+						</div>
+					</div>
+					<div class="row">
+						<div class="input-field col s12">
+							<button class="btn waves-effect waves-light right" type="submit" value="Add">Submit
+								<i class="material-icons right">send</i>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+	</div>
+	</form>
+</div>
+
+
+<%- include('../partials/footer'); %>

@@ -1,0 +1,44 @@
+<%- include('../partials/header'); %>
+
+<%- include('../partials/navbar'); %>
+
+<div class="container">
+	<a class="btn blue lighten-2" style="margin-top: 10px;" href="/settings/add" class="btn btn-secondary ml-3">New
+		Settings</a>
+	<table class="sunlight-line-highlight-overlay responsive-table">
+		<thead>
+			<tr>
+				<th>Settings Id</th>
+				<th>Domain</th>
+				<th>Employee Access</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			<% if(data.length){
+
+  for(var i = 0; i< data.length; i++) {%>
+			<tr>
+				<th><%= data[i].id %></th>
+				<td><%= data[i].domain %></td>
+				<td><%= data[i].access%></td>
+				<td>
+					<a class="btn edit" href="../settings/edit/<%=data[i].id%>" >Edit</a>
+					<a class="btn delete modal-trigger red accent-3" href="#modal1">Delete</a>
+					<%- include('../partials/confirmationModal', {data: '../settings/delete/' + data[i].id}); %>
+				</td>
+			</tr>
+			<% }
+
+   }else{ %>
+			<tr>
+				<td colspan="3">No settings</td>
+			</tr>
+			<% } %>
+		</tbody>
+
+	</table>
+</div>
+
+<%- include('../partials/footer'); %>
