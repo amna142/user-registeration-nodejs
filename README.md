@@ -21,3 +21,13 @@ This is a Node.js-based backend application that handles user authentication inc
    ```bash
    git clone https://github.com/amna142/user-registeration-nodejs.git
    cd user-registeration-nodejs
+   npm install
+
+
+
+### Customization Notes:
+1. **Replace** `YOUR_USERNAME/YOUR_REPO_NAME` with your actual GitHub username and repository name.
+2. **Ensure** the environment variable names in the `.env` section match what your project uses.
+3. Add additional endpoints or features to the `README` if you extend the functionality. 
+
+This `README.md` should give users a comprehensive guide to setting up and using your Node.js backend project.
